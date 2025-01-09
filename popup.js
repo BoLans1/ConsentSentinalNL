@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const results = document.getElementById('results');
     const cookieList = document.getElementById('cookieList');
     const trackerList = document.getElementById('trackerList');
+    const initialInfo = document.getElementById('initialInfo');
+    const objectionInfo = document.getElementById('objectionInfo');
+    const generateEmailButton = document.getElementById('generateEmailButton');
   
     const trackerNames = {
       "ga request": "Google Analytics",
@@ -28,8 +31,10 @@ document.addEventListener('DOMContentLoaded', function() {
   
     scanButton.addEventListener('click', function() {
       scanButton.disabled = true;
+      initialInfo.classList.add('hidden');
       progressContainer.classList.remove('hidden');
       results.classList.add('hidden');
+      objectionInfo.classList.add('hidden');
       updateProgress(0, 'Initiating scan...');
   
       chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
@@ -82,10 +87,14 @@ document.addEventListener('DOMContentLoaded', function() {
       cookieList.innerHTML = '';
       trackerList.innerHTML = '';
   
+      let cookiesFound = false;
+      let trackersFound = false;
+  
       if (result.cookiesAfter && result.cookiesAfter.length > 0) {
+        cookiesFound = true;
         result.cookiesAfter.forEach(cookie => {
           const li = document.createElement('li');
-          li.textContent = cookie.name;
+          li.innerHTML = `<i class="fas fa-cookie"></i> ${cookie.name}`;
           li.addEventListener('click', function() {
             const valueElement = this.querySelector('.cookie-value');
             if (valueElement) {
@@ -100,13 +109,14 @@ document.addEventListener('DOMContentLoaded', function() {
           cookieList.appendChild(li);
         });
       } else {
-        cookieList.innerHTML = '<li>No cookies found</li>';
+        cookieList.innerHTML = '<li><i class="fas fa-cookie-bite"></i> No cookies found</li>';
       }
   
       if (result.thirdPartyRequests && result.thirdPartyRequests.length > 0) {
+        trackersFound = true;
         result.thirdPartyRequests.forEach(request => {
           const li = document.createElement('li');
-          li.textContent = trackerNames[request.id] || request.id;
+          li.innerHTML = `<i class="fas fa-satellite-dish"></i> ${trackerNames[request.id] || request.id}`;
           li.addEventListener('click', function() {
             const urlElement = this.querySelector('.tracker-url');
             if (urlElement) {
@@ -121,10 +131,23 @@ document.addEventListener('DOMContentLoaded', function() {
           trackerList.appendChild(li);
         });
       } else {
-        trackerList.innerHTML = '<li>No trackers detected</li>';
+        trackerList.innerHTML = '<li><i class="fas fa-shield-alt"></i> No trackers detected</li>';
       }
   
       progressContainer.classList.add('hidden');
       results.classList.remove('hidden');
+  
+      if (cookiesFound || trackersFound) {
+        objectionInfo.classList.remove('hidden');
+        generateEmailButton.classList.remove('hidden');
+      } else {
+        objectionInfo.classList.add('hidden');
+        generateEmailButton.classList.add('hidden');
+      }
     }
+  
+    generateEmailButton.addEventListener('click', function() {
+      // This function will be implemented later
+      alert('Email generation feature coming soon!');
+    });
   });

@@ -137,3 +137,42 @@ body {
   .hidden {
     display: none;
   }
+
+  .fas {
+    margin-right: 5px;
+  }
+  
+  #scanButton .fas {
+    margin-right: 8px;
+  }
+  
+  h2 .fas, h3 .fas {
+    color: #ff6600;
+  }
+  
+  .description .fas {
+    color: #007bff;
+  }
+
+  #objectionInfo {
+    margin-top: 20px;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  #generateEmailButton {
+    background-color: #007bff;
+    margin-top: 10px;
+  }
+  
+  #generateEmailButton:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Ensure this style is present for hiding elements */
+  .hidden {
+    display: none;
+  }
