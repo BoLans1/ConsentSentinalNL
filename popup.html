@@ -1,38 +1,44 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <title>Consent Sentinel NL</title>
-    <style>
-        body {
-            width: 300px;
-            padding: 10px;
-            font-family: Arial, sans-serif;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-        }
-
-        #progress {
-            margin-top: 10px;
-        }
-
-        #results {
-            margin-top: 10px;
-            white-space: pre-wrap;
-        }
-    </style>
+  <title>Consent Sentinel NL</title>
+  <link rel="stylesheet" type="text/css" href="popup.css">
 </head>
-
 <body>
-    <h1>Consent Sentinel NL</h1>
-    <button id="scanButton">Scan Current Page</button>
-    <div id="progress"></div>
-    <div id="results"></div>
-    <script src="popup.js"></script>
+  <div class="container">
+    <header>
+      <img src="icons/icon128.png" alt="Consent Sentinel NL" class="logo">
+      <h1>Consent Sentinel NL</h1>
+    </header>
+    <div class="description">
+      <p>Consent Sentinel NL helps you identify cookies and trackers on websites, ensuring your privacy is protected.</p>
+      <p><strong>When you click "Scan this page":</strong></p>
+      <ol>
+        <li>We'll clear existing cookies and local storage for this site.</li>
+        <li>The page will be reloaded.</li>
+        <li>We'll detect any cookies or trackers set without your consent.</li>
+        <li>Results will be displayed below.</li>
+      </ol>
+    </div>
+    <button id="scanButton">Scan this page</button>
+    <div id="progressContainer" class="hidden">
+      <div id="progressBar">
+        <div id="progressFill"></div>
+      </div>
+      <div id="progressStatus"></div>
+    </div>
+    <div id="results" class="hidden">
+      <h2>Scan Results</h2>
+      <div id="cookiesFound">
+        <h3>Cookies Found:</h3>
+        <ul id="cookieList"></ul>
+      </div>
+      <div id="trackersFound">
+        <h3>Trackers Detected:</h3>
+        <ul id="trackerList"></ul>
+      </div>
+    </div>
+  </div>
+  <script src="popup.js"></script>
 </body>
-
 </html>

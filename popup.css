@@ -1,0 +1,139 @@
+body {
+    font-family: Arial, sans-serif;
+    width: 350px;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+  }
+  
+  .container {
+    padding: 20px;
+  }
+  
+  header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .logo {
+    width: 48px;
+    height: 48px;
+    margin-right: 10px;
+  }
+  
+  h1 {
+    font-size: 24px;
+    color: #333;
+    margin: 0;
+  }
+  
+  .description {
+    background-color: #e6f3ff;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  
+  .description p {
+    margin: 0 0 10px 0;
+  }
+  
+  .description ol {
+    margin: 0;
+    padding-left: 20px;
+  }
+  
+  button {
+    background-color: #ff6600;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s;
+  }
+  
+  button:hover {
+    background-color: #e65c00;
+  }
+  
+  #progressContainer {
+    margin-top: 20px;
+  }
+  
+  #progressBar {
+    width: 100%;
+    height: 20px;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  #progressFill {
+    width: 0%;
+    height: 100%;
+    background-color: #4caf50;
+    transition: width 0.5s;
+  }
+  
+  #progressStatus {
+    margin-top: 10px;
+    text-align: center;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  #results {
+    margin-top: 20px;
+    background-color: white;
+    border-radius: 5px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  h2 {
+    color: #333;
+    border-bottom: 2px solid #ff6600;
+    padding-bottom: 5px;
+  }
+  
+  h3 {
+    color: #ff6600;
+    margin-top: 15px;
+    margin-bottom: 10px;
+  }
+  
+  ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  
+  li {
+    margin-bottom: 5px;
+    padding: 5px;
+    background-color: #f9f9f9;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  
+  li:hover {
+    background-color: #e9e9e9;
+  }
+  
+  .cookie-value, .tracker-url {
+    display: none;
+    margin-top: 5px;
+    padding: 5px;
+    background-color: #e0e0e0;
+    border-radius: 3px;
+    font-size: 0.9em;
+    word-break: break-all;
+  }
+  
+  .hidden {
+    display: none;
+  }

@@ -1,18 +1,15 @@
 let cookieOperations = [];
 
 // Intercept cookie operations
-(function (cookieStore) {
-    cookieStore.set = new Proxy(cookieStore.set, {
-        apply: function (target, thisArg, argumentsList) {
-            cookieOperations.push({ type: 'set', cookie: argumentsList[0] });
-            return Reflect.apply(target, thisArg, argumentsList);
-        }
-    });
-
-    cookieStore.delete = new Proxy(cookieStore.delete, {
-        apply: function (target, thisArg, argumentsList) {
-            cookieOperations.push({ type: 'delete', cookie: argumentsList[0] });
-            return Reflect.apply(target, thisArg, argumentsList);
+(function(cookieStore) {
+    const originalDocCookieDesc = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
+    Object.defineProperty(document, 'cookie', {
+        get: function() {
+            return originalDocCookieDesc.get.call(this);
+        },
+        set: function(val) {
+            cookieOperations.push({type: 'set', cookie: val});
+            return originalDocCookieDesc.set.call(this, val);
         }
     });
 })(document.cookie);
@@ -20,7 +17,9 @@ let cookieOperations = [];
 // Listen for messages from the background script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'getCookieOperations') {
-        sendResponse({ cookieOperations: cookieOperations });
+        sendResponse({cookieOperations: cookieOperations});
         cookieOperations = []; // Clear after sending
     }
 });
+
+console.log('Content script loaded');
