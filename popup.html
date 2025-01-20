@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Consent Sentinel NL</title>
   <link rel="stylesheet" type="text/css" href="popup.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
   <div class="container">
     <header>
@@ -12,7 +14,8 @@
       <h1>Consent Sentinel NL</h1>
     </header>
     <div id="initialInfo" class="description">
-      <p><i class="fas fa-shield-alt"></i> Consent Sentinel NL helps you identify cookies and trackers on websites, ensuring your privacy is protected.</p>
+      <p><i class="fas fa-shield-alt"></i> Consent Sentinel NL helps you identify cookies and trackers on websites,
+        ensuring your privacy is protected.</p>
       <p><strong><i class="fas fa-info-circle"></i> When you click "Scan this page":</strong></p>
       <ol>
         <li><i class="fas fa-eraser"></i> We'll clear existing cookies and local storage for this site.</li>
@@ -30,9 +33,22 @@
     </div>
     <div id="results" class="hidden">
       <h2><i class="fas fa-clipboard-list"></i> Scan Results</h2>
-      <div id="cookiesFound">
-        <h3><i class="fas fa-cookie-bite"></i> Cookies Found:</h3>
-        <ul id="cookieList"></ul>
+      <div id="knownCookiesFound">
+        <h3><i class="fas fa-cookie-bite"></i> Known Tracking Cookies Found:</h3>
+        <table id="knownCookieTable">
+          <thead>
+            <tr>
+              <th>Cookie Name</th>
+              <th>Associated Company</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="otherCookiesFound">
+        <h3><i class="fas fa-cookie"></i> Other Cookies Found:</h3>
+        <button id="toggleOtherCookies">Show other found cookies</button>
+        <ul id="otherCookieList" class="hidden"></ul>
       </div>
       <div id="trackersFound">
         <h3><i class="fas fa-crosshairs"></i> Trackers Detected:</h3>
@@ -40,10 +56,13 @@
       </div>
     </div>
     <div id="objectionInfo" class="hidden">
-      <p><i class="fas fa-exclamation-triangle"></i> These trackers have been placed without your consent. You have the right to object to this practice.</p>
+      <p><i class="fas fa-exclamation-triangle"></i> These trackers have been placed without your consent. You have the
+        right to object to this practice.</p>
       <button id="generateEmailButton"><i class="fas fa-envelope"></i> Generate Objection Email</button>
     </div>
   </div>
+  <script src="knownCookies.js"></script>
   <script src="popup.js"></script>
 </body>
+
 </html>
