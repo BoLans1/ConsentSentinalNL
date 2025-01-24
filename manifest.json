@@ -9,7 +9,8 @@
         "scripting",
         "cookies",
         "webRequest",
-        "browsingData"
+        "browsingData",
+        "downloads"
     ],
     "host_permissions": [
         "<all_urls>"

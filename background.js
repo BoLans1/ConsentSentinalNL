@@ -2,86 +2,65 @@
 // List of endpoints to check, including regex patterns
 const thirdPartyEndpoints = [
   {
-    id: "ga request",
+    id: "Google Analytics",
     regex: /^https:\/\/(www|region\d+)\.(google-analytics|analytics\.google)\.com\/(\w\/)?collect/
   },
   {
-    id: "aa request",
+    id: "Adobe Analytics",
     regex: /^http(s)?:\/\/([^\/]*)\/b\/ss\/([^\/]*)\/[0-9]{1,2}\/([^\/]*)\/(s[0-9]*)((?!pccr=true).)*$/
   },
   {
-    id: "ads request",
+    id: "Google Ads",
     regex: /googleads\.g\.doubleclick\.net\/pagead\/viewthrough/
   },
   {
-    id: "doubleclick request",
+    id: "DoubleClick Ads",
     regex: /(?:fls|ad)\.doubleclick\.net\/activityi?;(?!.*dc_pre)/
   },
   {
-    id: "tealium collect request",
-    regex: /^https:\/\/collect.*tealiumiq\.com.*(i\.gif|event)$/
-  },
-  {
-    id: "facebook request",
+    id: "Facebook",
     regex: /facebook\.com\/tr\/?(?!.*&ev=microdata)\?/i
   },
   {
-    id: "linkedin request",
+    id: "LinkedIn",
     regex: /^https:\/\/px\.ads\.linkedin\.com\/collect\?/
   },
   {
-    id: "awin request",
+    id: "AWIN (Affiliate Marketing)",
     regex: /http(s){0,1}:\/\/www\.awin1\.com\/sread\.img/
   },
   {
-    id: "r42 request",
-    regex: /^http(s):\/\/(t\.svtrd\.com|tdn\.r42tag\.com|admin\.relay42\.com)\/(tags-|t-|s-|syncResponse\?ca_site=)([0-9]+)/
-  },
-  {
-    id: "amazon request",
+    id: "Amazon",
     regex: /^https:\/\/[a-z\-]+\.amazon-adsystem\.com\/s\/iu3.*(event=)/
   },
   {
-    id: "bing request",
+    id: "Bing Ads",
     regex: /^https:\/\/bat\.bing\.com\/action\/.*(evt=)/
   },
   {
-    id: "pinterest request",
+    id: "Pinterest",
     regex: /^https:\/\/ct\.pinterest\.com\/v3\/.*(event=)/
   },
   {
-    id: "snapchat request",
+    id: "Snapchat",
     regex: /^https:\/\/tr\.snapchat\.com\/p/
   },
   {
-    id: "tiktok request",
+    id: "TikTok",
     regex: /^https:\/\/analytics\.tiktok\.com\/api\/v2\/pixel/
   },
   {
-    id: "reddit request",
+    id: "Reddit",
     regex: /^https:\/\/alb\.reddit\.com\/rp\.gif.*(event=)/
   },
   {
-    id: "snowplow get request",
-    regex: /^https:\/\/[^\/]+\/i\?(?=.*&e=)(?=.*&tna=.*)(?=.*&aid=.*)/
-  },
-  {
-    id: "snowplow request",
-    regex: /^https:\/\/.*\/.*snowplow/
-  },
-  {
-    id: "adform request",
+    id: "AdForm",
     regex: /^https:\/\/track\.adform\.net\/Serving\/TrackPoint\//
   },
   {
-    id: "gtmss request",
+    id: "Google Analytics (Server Side)",
     regex: /^https:\/\/.*\/(collect|metrics|data).*?((?=.*sst\..{3,4}\=))/
   }
-];
-
-// List of third-party cookies to check (you'll need to provide the full list)
-const thirdPartyCookies = [
-  // Add cookie names here
 ];
 
 let currentTabId = null;
@@ -252,16 +231,24 @@ chrome.webRequest.onBeforeRequest.addListener(
     if (details.tabId === currentTabId) {
       for (const endpoint of thirdPartyEndpoints) {
         if (endpoint.regex.test(details.url)) {
+          let payload = '';
+          if (details.method === 'POST') {
+            payload = details.requestBody ? JSON.stringify(details.requestBody) : 'No payload';
+          } else {
+            const url = new URL(details.url);
+            payload = url.search.substr(1); // Remove the leading '?'
+          }
           thirdPartyRequests.push({
             id: endpoint.id,
-            url: details.url
+            url: details.url,
+            payload: payload
           });
-          console.log(`Third-party request detected (${endpoint.id}):`, details.url);
+          console.log(`Third-party request detected (${endpoint.id}):`, details.url, 'Payload:', payload);
           break;
         }
       }
     }
   },
-  { urls: ["<all_urls>"] }
+  { urls: ["<all_urls>"] },
+  ['requestBody']
 );
-console.log('Background script loaded');
