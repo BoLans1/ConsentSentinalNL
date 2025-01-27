@@ -3,19 +3,39 @@ body {
   width: 400px;
   margin: 0;
   padding: 0;
-  background-color: #ffffff;
+  background-color: #f5f5f5;
+  /* Light gray background for better contrast */
+  color: #333;
+  /* Darker text color for better readability */
+  line-height: 1.6;
+  /* Improved line height for better readability */
+}
+
+.fas {
+  margin-right: 5px;
+}
+
+button .fas {
+  margin-right: 8px;
 }
 
 .container {
   padding: 20px;
   height: 100%;
   overflow-y: auto;
+  background-color: #ffffff;
+  /* White background for the main content */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  /* Subtle shadow for depth */
 }
 
 header {
   display: flex;
   align-items: center;
   margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #ff6600;
+  /* Orange border for visual separation */
 }
 
 .logo {
@@ -28,15 +48,20 @@ h1 {
   font-size: 24px;
   color: #1a2b49;
   margin: 0;
+  font-weight: bold;
+  /* Make the title bolder */
 }
 
 .description {
   background-color: #e6f3ff;
-  border-radius: 5px;
-  padding: 10px;
+  border-radius: 8px;
+  /* Increased border radius */
+  padding: 15px;
   margin-bottom: 20px;
   font-size: 14px;
-  line-height: 1.4;
+  line-height: 1.5;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  /* Subtle shadow for depth */
 }
 
 .description p {
@@ -52,16 +77,29 @@ button {
   background-color: #ff6600;
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 12px 20px;
+  /* Increased padding for better clickability */
   font-size: 16px;
+  font-weight: bold;
+  /* Make button text bold */
   cursor: pointer;
   width: 100%;
-  transition: background-color 0.3s;
-  border-radius: 5px;
+  transition: background-color 0.3s, transform 0.1s;
+  border-radius: 8px;
+  /* Increased border radius */
+  margin-bottom: 15px;
+  /* Add some space below buttons */
 }
 
 button:hover {
   background-color: #e65c00;
+  transform: translateY(-2px);
+  /* Slight lift effect on hover */
+}
+
+button:active {
+  transform: translateY(1px);
+  /* Pressed effect */
 }
 
 #progressContainer {
@@ -93,21 +131,24 @@ button:hover {
 #results {
   margin-top: 20px;
   background-color: white;
-  border-radius: 5px;
-  padding: 15px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 h2 {
   color: #1a2b49;
   border-bottom: 2px solid #ff6600;
-  padding-bottom: 5px;
+  padding-bottom: 10px;
+  margin-top: 0;
+  font-size: 20px;
 }
 
 h3 {
   color: #ff6600;
-  margin-top: 15px;
-  margin-bottom: 10px;
+  margin-top: 20px;
+  margin-bottom: 15px;
+  font-size: 18px;
 }
 
 ul {
@@ -116,30 +157,47 @@ ul {
 }
 
 li {
-  margin-bottom: 5px;
-  padding: 5px;
+  margin-bottom: 10px;
+  padding: 10px;
   background-color: #f9f9f9;
-  border-radius: 3px;
+  border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 li:hover {
   background-color: #e9e9e9;
 }
 
-.value-button {
+.value-button,
+.url-button,
+.info-button {
   margin-left: 10px;
-  padding: 2px 5px;
+  padding: 5px 10px;
   font-size: 12px;
-  background-color: #ff6600;
+  background-color: #1a2b49;
   color: white;
   border: none;
-  border-radius: 3px;
+  border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.value-button:hover {
-  background-color: #e0e0e0;
+.value-button:hover,
+.url-button:hover,
+.info-button:hover {
+  background-color: #2a3b59;
+}
+
+.tracker-url,
+.cookie-info {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 12px;
+  word-break: break-all;
 }
 
 .cookie-value {
@@ -149,16 +207,6 @@ li:hover {
   border: 1px solid #eee;
   border-radius: 3px;
   font-size: 12px;
-  word-break: break-all;
-}
-
-.tracker-url {
-  display: none;
-  margin-top: 5px;
-  padding: 5px;
-  background-color: #e0e0e0;
-  border-radius: 3px;
-  font-size: 0.9em;
   word-break: break-all;
 }
 
@@ -186,11 +234,15 @@ h3 .fas {
 
 #objectionInfo {
   margin-top: 20px;
-  background-color: #fff3cd;
-  border: 1px solid #ffeeba;
-  border-radius: 5px;
-  padding: 10px;
-  font-size: 14px;
+  padding: 15px;
+  background-color: #ffe6e6;
+  border-radius: 8px;
+  border: 1px solid #ffcccc;
+}
+
+#objectionInfo h3 {
+  color: #cc0000;
+  margin-top: 0;
 }
 
 #generateEmailButton {
@@ -205,19 +257,19 @@ h3 .fas {
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 15px;
+  margin-top: 15px;
 }
 
 th,
 td {
-  border: 1px solid #ddd;
-  padding: 8px;
+  padding: 10px;
   text-align: left;
+  border-bottom: 1px solid #ddd;
 }
 
 th {
   background-color: #f2f2f2;
-  color: #1a2b49;
+  font-weight: bold;
 }
 
 #toggleOtherCookies {
@@ -322,4 +374,19 @@ th {
 .payload-table td:first-child {
   font-weight: bold;
   width: 30%;
+}
+
+#description {
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+}
+
+#description ul {
+  padding-left: 20px;
+}
+
+.hidden {
+  display: none;
 }

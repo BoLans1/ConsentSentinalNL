@@ -6,6 +6,10 @@ const thirdPartyEndpoints = [
     regex: /^https:\/\/(www|region\d+)\.(google-analytics|analytics\.google)\.com\/(\w\/)?collect/
   },
   {
+    id: "Comscore",
+    regex: /^https:\/\/sb\.scorecardresearch.com\//
+  },
+  {
     id: "Adobe Analytics",
     regex: /^http(s)?:\/\/([^\/]*)\/b\/ss\/([^\/]*)\/[0-9]{1,2}\/([^\/]*)\/(s[0-9]*)((?!pccr=true).)*$/
   },
@@ -95,59 +99,38 @@ async function scanWebsite(tabId) {
 
     updateProgress(`Scanning: ${tab.url}`);
 
-    // Get cookies before clearing
-    const cookiesBefore = await getAllCookiesForDomain(domain);
-    console.log('Cookies before clearing:', cookiesBefore);
-
-    // Clear browser data
+    // Step 1: Clear all browser data
     await clearBrowserDataForSite(tabId, domain);
+    updateProgress('Initial browser data cleared');
 
-    updateProgress('Browser data cleared');
-
-    // Reload the website
+    // Step 2: Reload the website
     await chrome.tabs.reload(tabId);
+    updateProgress('Website reloaded (first time)');
 
-    updateProgress('Website reloaded');
+    // Step 3: Wait a short period
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Wait longer for the page to load and scripts to run
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    // Step 4: Clear the browser data again
+    await clearBrowserDataForSite(tabId, domain);
+    updateProgress('Browser data cleared again');
 
-    // Get cookies after reload
+    // Step 5: Reload the website again
+    await chrome.tabs.reload(tabId);
+    updateProgress('Website reloaded (second time)');
+
+    // Step 6: Wait a short period
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // Step 7: Get cookies that are placed
     const cookiesAfter = await getAllCookiesForDomain(domain);
-    console.log('Cookies after reload:', cookiesAfter);
-
-    // Get cookie operations from content script
-    let cookieOps = { cookieOperations: [] };
-    try {
-      cookieOps = await getCookieOperations(tabId);
-    } catch (error) {
-      console.log('Error getting cookie operations:', error);
-    }
-    console.log('Cookie operations:', cookieOps);
-
-    // Check local and session storage
-    let storageData = { result: { localStorage: {}, sessionStorage: {} } };
-    try {
-      storageData = await chrome.scripting.executeScript({
-        target: { tabId: tabId },
-        function: getStorageData,
-      });
-    } catch (error) {
-      console.log('Error getting storage data:', error);
-    }
-    console.log('Storage data after reload:', storageData[0]?.result || storageData);
+    console.log('Cookies after final reload:', cookiesAfter);
 
     updateProgress('Scan complete');
 
     // Return results
     const result = {
-      sharesData: cookiesAfter.length > 0 || thirdPartyRequests.length > 0,
-      cookiesBefore: cookiesBefore,
       cookiesAfter: cookiesAfter,
-      thirdPartyRequests: thirdPartyRequests,
-      cookieOperations: cookieOps.cookieOperations,
-      localStorage: storageData[0]?.result?.localStorage || {},
-      sessionStorage: storageData[0]?.result?.sessionStorage || {}
+      thirdPartyRequests: thirdPartyRequests
     };
 
     chrome.runtime.sendMessage({
@@ -162,41 +145,66 @@ async function scanWebsite(tabId) {
   }
 }
 
-async function getCookieOperations(tabId) {
-  return new Promise((resolve, reject) => {
-    chrome.tabs.sendMessage(tabId, { action: 'getCookieOperations' }, (response) => {
-      if (chrome.runtime.lastError) {
-        console.log('Error sending message:', chrome.runtime.lastError);
-        resolve({ cookieOperations: [] });
-      } else {
-        resolve(response || { cookieOperations: [] });
-      }
-    });
-  });
-}
-
 async function clearBrowserDataForSite(tabId, domain) {
   console.log('Clearing data for domain:', domain);
 
-  // Clear all cookies for the domain and its subdomains
-  const allCookies = await getAllCookiesForDomain(domain);
-  console.log('Cookies before clearing:', allCookies);
-  for (let cookie of allCookies) {
-    await chrome.cookies.remove({ url: `http${cookie.secure ? 's' : ''}://${cookie.domain}${cookie.path}`, name: cookie.name });
-  }
-  const remainingCookies = await getAllCookiesForDomain(domain);
-  console.log('Cookies after clearing:', remainingCookies);
+  // Clear browsing data
+  await chrome.browsingData.remove({
+    "origins": [`https://${domain}`]
+  }, {
+    "cache": true,
+    "cookies": true,
+    "fileSystems": true,
+    "indexedDB": true,
+    "localStorage": true,
+    "serviceWorkers": true,
+    "webSQL": true
+  });
 
-  // Clear cache for the domain
-  await chrome.browsingData.removeCache({ origins: [`https://${domain}`] });
-
-  // Clear local and session storage
+  // Clear cache storage
   await chrome.scripting.executeScript({
     target: { tabId: tabId },
-    function: clearStorageData,
+    function: clearCacheStorage,
+  });
+
+  // Clear storage in all frames
+  await chrome.scripting.executeScript({
+    target: { tabId: tabId, allFrames: true },
+    function: clearAllStorage,
   });
 
   console.log('Finished clearing data for domain:', domain);
+}
+
+function clearCacheStorage() {
+  if ('caches' in window) {
+    caches.keys().then(function (names) {
+      for (let name of names) caches.delete(name);
+    });
+  }
+}
+
+function clearAllStorage() {
+  localStorage.clear();
+  sessionStorage.clear();
+
+  if (window.indexedDB) {
+    window.indexedDB.databases().then(dbs => {
+      for (let db of dbs) {
+        window.indexedDB.deleteDatabase(db.name);
+      }
+    });
+  }
+
+  if (window.openDatabase) {
+    let dbs = ["mydb", "mydb2"]; // Add known database names
+    for (let dbname of dbs) {
+      let db = openDatabase(dbname, "", "");
+      db.transaction(tx => {
+        tx.executeSql('DROP TABLE IF EXISTS myTable', [], () => { }, () => { });
+      });
+    }
+  }
 }
 
 async function getAllCookiesForDomain(domain) {
@@ -208,47 +216,25 @@ async function getAllCookiesForDomain(domain) {
   );
 }
 
-function clearStorageData() {
-  console.log('Local storage before clearing:', { ...localStorage });
-  console.log('Session storage before clearing:', { ...sessionStorage });
-  localStorage.clear();
-  sessionStorage.clear();
-  console.log('Local storage after clearing:', { ...localStorage });
-  console.log('Session storage after clearing:', { ...sessionStorage });
-  return 'Storage cleared';
-}
-
-function getStorageData() {
-  return {
-    localStorage: { ...localStorage },
-    sessionStorage: { ...sessionStorage }
-  };
-}
-
 // Listen for web requests to check for third-party endpoints
 chrome.webRequest.onBeforeRequest.addListener(
   (details) => {
     if (details.tabId === currentTabId) {
       for (const endpoint of thirdPartyEndpoints) {
         if (endpoint.regex.test(details.url)) {
-          let payload = '';
-          if (details.method === 'POST') {
-            payload = details.requestBody ? JSON.stringify(details.requestBody) : 'No payload';
-          } else {
-            const url = new URL(details.url);
-            payload = url.search.substr(1); // Remove the leading '?'
-          }
           thirdPartyRequests.push({
             id: endpoint.id,
             url: details.url,
-            payload: payload
+            payload: details.method === 'POST' ? JSON.stringify(details.requestBody) : new URL(details.url).search.substr(1)
           });
-          console.log(`Third-party request detected (${endpoint.id}):`, details.url, 'Payload:', payload);
+          console.log(`Third-party request detected (${endpoint.id}):`, details.url);
           break;
         }
       }
     }
   },
   { urls: ["<all_urls>"] },
-  ['requestBody']
+  ["requestBody"]
 );
+
+console.log('Background script loaded');

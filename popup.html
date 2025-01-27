@@ -4,18 +4,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Consent Sentinel NL</title>
-  <link rel="stylesheet" href="popup.css">
+  <title>Consent Sentinel</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="knownCookies.js"></script>
+  <link rel="stylesheet" href="popup.css">
 </head>
 
 <body>
   <div class="container">
     <header>
-      <img src="/icons/icon128.png" alt="Consent Sentinel NL" class="logo">
-      <h1>Consent Sentinel NL</h1>
+      <img src="icons/icon128.png" alt="Consent Sentinel" class="logo">
+      <h1>Consent Sentinel</h1>
     </header>
+
+    <div id="description">
+      <p>Consent Sentinel helps you identify cookies and trackers on websites, ensuring your privacy is protected.
+      </p>
+      <p>When you click "Scan this page", the extension will:</p>
+      <ul>
+        <li><i class="fas fa-trash"></i> Clear existing cookies and local storage for this site</li>
+        <li><i class="fas fa-sync"></i> Reload the page</li>
+        <li><i class="fas fa-search"></i> Detect cookies or trackers set without your consent</li>
+        <li><i class="fas fa-list"></i> Display the results below</li>
+      </ul>
+    </div>
 
     <button id="scanButton">Scan this page</button>
 
@@ -27,16 +38,16 @@
     </div>
 
     <div id="results" class="hidden">
-      <h2><i class="fas fa-clipboard-list"></i> Scan Results</h2>
+      <h2>Scan Results</h2>
 
       <div id="knownCookiesFound">
-        <h3><i class="fas fa-cookie-bite"></i> Known Tracking Cookies Found:</h3>
+        <h3>Known Tracking Cookies Found:</h3>
         <table id="knownCookieTable">
           <thead>
             <tr>
               <th>Cookie Name</th>
               <th>Associated Company</th>
-              <th>Description</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -44,26 +55,28 @@
       </div>
 
       <div id="otherCookiesFound">
-        <h3><i class="fas fa-cookie"></i> Other Cookies Found:</h3>
+        <h3>Other Cookies Found:</h3>
         <button id="toggleOtherCookies">Show other found cookies</button>
         <ul id="otherCookieList" class="hidden"></ul>
       </div>
 
       <div id="trackersFound">
-        <h3><i class="fas fa-crosshairs"></i> Trackers Detected:</h3>
+        <h3>Trackers Detected:</h3>
         <ul id="trackerList"></ul>
       </div>
-
-      <button id="exportResults"><i class="fas fa-file-export"></i> Export Results</button>
     </div>
 
     <div id="objectionInfo" class="hidden">
-      <p><i class="fas fa-exclamation-triangle"></i> These trackers have been placed without your consent. You have the
-        right to object to this practice.</p>
-      <button id="generateEmailButton"><i class="fas fa-envelope"></i> Generate Objection Email</button>
+      <h3>You can object to this</h3>
+      <p>Trackers or cookies were found without consent. You can object to this practice. Share the results with the
+        company and ask them to remove the trackers or cookies.</p>
+      <button id="exportResults">Export the results</button>
     </div>
+
+    <button id="exportResults" class="hidden">Export Results</button>
   </div>
   <script src="popup.js"></script>
+  <script src="knownCookies.js"></script>
 </body>
 
 </html>
