@@ -68,9 +68,13 @@ h1 {
   margin: 0 0 10px 0;
 }
 
-.description ol {
-  margin: 0;
-  padding-left: 20px;
+#description ul li {
+  margin-bottom: 5px;
+}
+
+#description ul li:hover {
+  background-color: transparent;
+  cursor: default;
 }
 
 button {

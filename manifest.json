@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Consent Sentinel",
     "version": "1.0",
-    "description": "Check if websites are sharing browsing data without consent in the Netherlands",
+    "description": "Check if websites are sharing browsing data without consent",
     "permissions": [
         "storage",
         "activeTab",

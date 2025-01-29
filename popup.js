@@ -118,6 +118,7 @@ p {
 
 ul, ol {
     margin-bottom: 20px;
+    margin-top: 10px;
     padding-left: 20px;
 }
 
@@ -151,6 +152,21 @@ li {
             <h1>Consent Sentinel Report</h1>
             <p style="text-align: center;">Scan results for: <strong>${hostname}</strong></p>
             
+            <div class="section">
+                <h2>Scan Process</h2>
+                <p>Consent Sentinel NL followed these steps to scan the website:</p>
+                <ol>
+                    <li>Cleared all browser data for the site. Inlcuding
+                    <ul>Cookies</ul>
+                    <ul>All browser storage options</ul>
+                    <ul>History</ul>
+                    <ul>Chrome Webkit information</ul>
+                    </li>
+                    <li>Reloaded the website</li>
+                    <li>Captured cookies and trackers set during this process</li>
+                </ol>
+            </div>
+
             <div class="section">
                 <h2>Known Tracking Cookies Found:</h2>
                 <p class="section-description">These cookies are known to be used for tracking purposes. They have been identified and matched against our database of known tracking cookies.</p>
@@ -380,7 +396,10 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
               const payload = document.createElement('div');
               payload.className = 'tracker-payload';
-              payload.textContent = request.payload;
+              const payloadData = parsePayload(request.payload);
+              payload.innerHTML = Object.entries(payloadData)
+                .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
+                .join('<br>');
               li.insertBefore(payload, this.nextSibling);
               this.textContent = 'Hide tracker payload';
             }
@@ -395,6 +414,7 @@ document.addEventListener('DOMContentLoaded', function () {
       trackerList.innerHTML = '<li>No trackers detected</li>';
     }
 
+
     progressContainer.classList.add('hidden');
     results.classList.remove('hidden');
     exportButton.classList.remove('hidden');
@@ -407,6 +427,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     console.log('Known Cookies:', result.cookiesAfter.filter(cookie => knownCookies.some(known => known.regex.test(cookie.name))));
     console.log('Other Cookies:', result.cookiesAfter.filter(cookie => !knownCookies.some(known => known.regex.test(cookie.name))));
+  }
+
+  function parsePayload(payload) {
+    if (typeof payload === 'string') {
+      try {
+        return JSON.parse(payload);
+      } catch (e) {
+        const result = {};
+        payload.split('&').forEach(pair => {
+          const [key, value] = pair.split('=');
+          result[decodeURIComponent(key)] = decodeURIComponent(value);
+        });
+        return result;
+      }
+    }
+    return payload || {};
   }
 
   toggleOtherCookiesButton.addEventListener('click', function () {
