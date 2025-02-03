@@ -349,16 +349,6 @@ th {
   background-color: #e65c00;
 }
 
-.tracker-payload {
-  margin-top: 5px;
-  padding: 5px;
-  background-color: #f9f9f9;
-  border: 1px solid #eee;
-  border-radius: 3px;
-  font-size: 12px;
-  word-break: break-all;
-  white-space: pre-wrap;
-}
 
 .hidden {
   display: none;
@@ -393,4 +383,30 @@ th {
 
 .hidden {
   display: none;
+}
+
+#statusMessage {
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+#statusMessage i {
+  margin-right: 5px;
+}
+
+.no-items-message {
+  padding: 10px;
+  background-color: #f8f8f8;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  color: #666;
+  font-style: italic;
+}
+
+.tracker-payload {
+  margin-top: 5px;
+  padding: 5px;
+  background-color: #f8f8f8;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
 }

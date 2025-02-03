@@ -327,106 +327,159 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('Cookies After:', result.cookiesAfter);
     console.log('Third Party Requests:', result.thirdPartyRequests);
 
-    knownCookieTableBody.innerHTML = '';
-    otherCookieList.innerHTML = '';
-    trackerList.innerHTML = '';
+    const resultsContainer = document.getElementById('results');
+    const knownCookiesSection = document.getElementById('knownCookiesFound');
+    const otherCookiesSection = document.getElementById('otherCookiesFound');
+    const trackersSection = document.getElementById('trackersFound');
 
     let knownCookiesFound = false;
     let otherCookiesFound = false;
     let trackersFound = false;
 
-    if (result.cookiesAfter && result.cookiesAfter.length > 0) {
-      result.cookiesAfter.forEach(cookie => {
+    // Known Tracking Cookies
+    const knownTrackingCookies = result.cookiesAfter.filter(cookie =>
+      knownCookies.some(known => known.regex.test(cookie.name))
+    );
+
+    if (knownTrackingCookies.length > 0) {
+      knownCookiesFound = true;
+      knownCookiesSection.innerHTML = `
+        <h3>Known Tracking Cookies Found:</h3>
+        <table id="knownCookieTable">
+          <thead>
+            <tr>
+              <th>Cookie Name</th>
+              <th>Associated Company</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${knownTrackingCookies.map(cookie => {
         const knownCookie = knownCookies.find(known => known.regex.test(cookie.name));
-        if (knownCookie) {
-          knownCookiesFound = true;
-          const row = knownCookieTableBody.insertRow();
-          row.insertCell(0).textContent = cookie.name;
-          row.insertCell(1).textContent = knownCookie.company;
-          const actionCell = row.insertCell(2);
-          const infoButton = document.createElement('button');
-          infoButton.textContent = 'Info';
-          infoButton.className = 'info-button';
-          infoButton.addEventListener('click', () => {
-            actionCell.textContent = knownCookie.description;
-          });
-          actionCell.appendChild(infoButton);
-        } else {
-          otherCookiesFound = true;
-          const li = document.createElement('li');
-          li.textContent = cookie.name;
-          const valueButton = document.createElement('button');
-          valueButton.textContent = 'Show Value';
-          valueButton.className = 'value-button';
-          valueButton.addEventListener('click', () => {
-            const valueElement = li.querySelector('.cookie-value');
-            if (valueElement) {
-              valueElement.remove();
-              valueButton.textContent = 'Show Value';
-            } else {
-              const value = document.createElement('div');
-              value.className = 'cookie-value';
-              value.textContent = cookie.value;
-              li.appendChild(value);
-              valueButton.textContent = 'Hide Value';
-            }
-          });
-          li.appendChild(valueButton);
-          otherCookieList.appendChild(li);
-        }
-      });
-    }
+        return `
+                <tr>
+                  <td>${cookie.name}</td>
+                  <td>${knownCookie.company}</td>
+                  <td>
+                    <button class="info-button" data-description="${knownCookie.description}">Info</button>
+                  </td>
+                </tr>
+              `;
+      }).join('')}
+          </tbody>
+        </table>
+      `;
 
-    if (result.thirdPartyRequests && result.thirdPartyRequests.length > 0) {
-      const trackersWithPayload = result.thirdPartyRequests.filter(request => request.payload && request.payload !== 'No payload available');
-
-      if (trackersWithPayload.length > 0) {
-        trackersFound = true;
-        trackersWithPayload.forEach(request => {
-          const li = document.createElement('li');
-          li.textContent = request.id;
-          const payloadButton = document.createElement('button');
-          payloadButton.textContent = 'Show tracker payload';
-          payloadButton.className = 'payload-button';
-          payloadButton.addEventListener('click', function () {
-            const payloadElement = this.nextElementSibling;
-            if (payloadElement && payloadElement.classList.contains('tracker-payload')) {
-              payloadElement.classList.toggle('hidden');
-              this.textContent = payloadElement.classList.contains('hidden') ? 'Show tracker payload' : 'Hide tracker payload';
-            } else {
-              const payload = document.createElement('div');
-              payload.className = 'tracker-payload';
-              const payloadData = parsePayload(request.payload);
-              payload.innerHTML = Object.entries(payloadData)
-                .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
-                .join('<br>');
-              li.insertBefore(payload, this.nextSibling);
-              this.textContent = 'Hide tracker payload';
-            }
-          });
-          li.appendChild(payloadButton);
-          trackerList.appendChild(li);
+      // Add event listeners for info buttons
+      document.querySelectorAll('.info-button').forEach(button => {
+        button.addEventListener('click', function () {
+          const description = this.getAttribute('data-description');
+          this.parentElement.innerHTML = description;
         });
-      } else {
-        trackerList.innerHTML = '<li>No trackers with payloads detected</li>';
-      }
+      });
     } else {
-      trackerList.innerHTML = '<li>No trackers detected</li>';
+      knownCookiesSection.innerHTML = '<p class="no-items-message">No known tracking cookies detected</p>';
     }
 
+    // Other Cookies
+    const otherCookies = result.cookiesAfter.filter(cookie =>
+      !knownCookies.some(known => known.regex.test(cookie.name))
+    );
 
-    progressContainer.classList.add('hidden');
-    results.classList.remove('hidden');
-    exportButton.classList.remove('hidden');
+    if (otherCookies.length > 0) {
+      otherCookiesFound = true;
+      otherCookiesSection.innerHTML = `
+        <h3>Other Cookies Found:</h3>
+        <button id="toggleOtherCookies">Show other found cookies</button>
+        <ul id="otherCookieList" class="hidden">
+          ${otherCookies.map(cookie => `
+            <li>
+              ${cookie.name}
+              <button class="value-button" data-value="${cookie.value}">Show Value</button>
+              <span class="cookie-value hidden">${cookie.value}</span>
+            </li>
+          `).join('')}
+        </ul>
+      `;
+
+      document.getElementById('toggleOtherCookies').addEventListener('click', function () {
+        const list = document.getElementById('otherCookieList');
+        list.classList.toggle('hidden');
+        this.textContent = list.classList.contains('hidden') ? 'Show other found cookies' : 'Hide other found cookies';
+      });
+
+      document.querySelectorAll('.value-button').forEach(button => {
+        button.addEventListener('click', function () {
+          const valueSpan = this.nextElementSibling;
+          valueSpan.classList.toggle('hidden');
+          this.textContent = valueSpan.classList.contains('hidden') ? 'Show Value' : 'Hide Value';
+        });
+      });
+    } else {
+      otherCookiesSection.innerHTML = '<p class="no-items-message">No other cookies found</p>';
+    }
+
+    // Trackers
+    const trackersWithPayload = result.thirdPartyRequests.filter(request =>
+      request.payload && request.payload.trim() !== ''
+    );
+
+    if (trackersWithPayload.length > 0) {
+      trackersFound = true;
+      trackersSection.innerHTML = `
+        <h3>Trackers Detected:</h3>
+        <ul id="trackerList">
+          ${trackersWithPayload.map(request => `
+            <li>
+              ${request.id}
+              <button class="payload-button">Show tracker payload</button>
+              <div class="tracker-payload hidden"></div>
+            </li>
+          `).join('')}
+        </ul>
+      `;
+
+      document.querySelectorAll('.payload-button').forEach((button, index) => {
+        button.addEventListener('click', function () {
+          const payloadDiv = this.nextElementSibling;
+          if (payloadDiv.classList.contains('hidden')) {
+            const payload = parsePayload(trackersWithPayload[index].payload);
+            payloadDiv.innerHTML = Object.entries(payload)
+              .map(([key, value]) => `<strong>${key}:</strong> ${value}<br>`)
+              .join('');
+            payloadDiv.classList.remove('hidden');
+            this.textContent = 'Hide tracker payload';
+          } else {
+            payloadDiv.classList.add('hidden');
+            this.textContent = 'Show tracker payload';
+          }
+        });
+      });
+    } else {
+      trackersSection.innerHTML = '<p class="no-items-message">No trackers detected</p>';
+    }
+
+    resultsContainer.classList.remove('hidden');
+    document.getElementById('exportResults').classList.remove('hidden');
 
     if (knownCookiesFound || otherCookiesFound || trackersFound) {
-      objectionInfo.classList.remove('hidden');
+      document.getElementById('objectionInfo').classList.remove('hidden');
     } else {
-      objectionInfo.classList.add('hidden');
+      document.getElementById('objectionInfo').classList.add('hidden');
     }
+  }
 
-    console.log('Known Cookies:', result.cookiesAfter.filter(cookie => knownCookies.some(known => known.regex.test(cookie.name))));
-    console.log('Other Cookies:', result.cookiesAfter.filter(cookie => !knownCookies.some(known => known.regex.test(cookie.name))));
+  function parsePayload(payload) {
+    try {
+      return JSON.parse(payload);
+    } catch (e) {
+      const result = {};
+      payload.split('&').forEach(pair => {
+        const [key, value] = pair.split('=');
+        result[decodeURIComponent(key)] = decodeURIComponent(value);
+      });
+      return result;
+    }
   }
 
   function parsePayload(payload) {
